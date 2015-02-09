@@ -11,7 +11,7 @@ import settings
 def main():
 
     tc = transmissionrpc.Client(
-        settings.TRANSMISSION_HOST,
+        address=settings.TRANSMISSION_HOST,
         port=settings.TRANSMISSION_PORT,
         user=settings.TRANSMISSION_USER,
         password=settings.TRANSMISSION_PASS)

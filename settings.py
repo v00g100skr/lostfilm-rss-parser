@@ -3,6 +3,10 @@ __author__ = 'crow'
 SERIES = [
     {
         'title': 'Helix'
+    }, {
+        'title': 'Forever',
+        'download_path': 'Forever',
+        'quality': '1080p'
     }
 ]
 
