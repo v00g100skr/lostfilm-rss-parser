@@ -46,8 +46,6 @@ def main():
                         os.makedirs(download_dir)
                     tc.add_torrent(base64.b64encode(buffer), download_dir=download_dir)
                     logging.info(torrent_filename)
-                    pass
-            pass
 
 if __name__ == "__main__":
     main()
