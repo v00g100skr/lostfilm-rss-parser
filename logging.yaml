@@ -2,7 +2,7 @@ version: 1
 
 formatters:
   brief:
-    format: '%(asctime)s: %(message)s'
+    format: '%(asctime)s %(message)s'
     datefmt: '%H:%M:%S'
 
   precise:
@@ -56,5 +56,5 @@ loggers:
 
   download:
     level: INFO
-    handlers: [console_handler, process_handler, download_handler]
+    handlers: [download_handler]
     propagate: false
