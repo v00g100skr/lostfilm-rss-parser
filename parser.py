@@ -6,37 +6,35 @@ import transmissionrpc
 import base64
 import os
 import logging
-
-series = [
-    {
-        'title': 'Helix'
-    }
-]
-
-torrents_path = '/Volumes/home/crow/Downloads/'
+import settings
 
 def main():
 
-    tc = transmissionrpc.Client('localhost', port=9091,user='admin',password='admin')
+    tc = transmissionrpc.Client(
+        settings.TRANSMISSION_HOST,
+        port=settings.TRANSMISSION_PORT,
+        user=settings.TRANSMISSION_USER,
+        password=settings.TRANSMISSION_PASS)
+
     feed = feedparser.parse('http://www.lostfilm.tv/rssdd.xml')
     logging.basicConfig(format='%(asctime)s %(message)s',filename='example.log',level=logging.INFO, datefmt='%m-%d-%Y %H:%M:%S')
 
     for entry in feed.entries:
-        for serie_info in series:
+        for serie_info in settings.SERIES:
 
             title = serie_info['title']
             regexp = serie_info.get('regexp', title)
             quality = serie_info.get('quality','')
             download_path = serie_info.get('download_path', title)
-            download_dir = torrents_path + download_path
+            download_dir = settings.TORRENTS_PATH + download_path
             torrent_filename = entry.link.split("&")[1]
 
             if all([regexp in entry.title, quality in entry.link]):
                 request = urllib2.Request(
                     entry.link,
                     headers={
-                        "Cookie": " uid=****; pass=****; usess=****",
-                        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:34.0) Gecko/20100101 Firefox/34.0"
+                        "Cookie": " uid={}; pass={}; usess={}".format(settings.UID,settings.PASS,settings.USESS),
+                        "User-Agent": settings.USER_AGENT
                     })
                 torrent = urllib2.urlopen(request)
                 buffer = torrent.read()
@@ -49,7 +47,7 @@ def main():
                     tc.add_torrent(base64.b64encode(buffer), download_dir=download_dir)
                     logging.info(torrent_filename)
                     pass
-                pass
+            pass
 
 if __name__ == "__main__":
     main()

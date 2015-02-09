@@ -4,6 +4,7 @@ __pycache__/
 
 .idea
 .DS_Store
+local.py
 
 # C extensions
 *.so
