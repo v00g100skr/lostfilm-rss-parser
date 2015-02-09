@@ -1,0 +1,59 @@
+version: 1
+
+formatters:
+  brief:
+    format: '%(asctime)s: %(message)s'
+    datefmt: '%H:%M:%S'
+
+  precise:
+    format: '%(asctime)s : %(levelname)s : %(message)s'
+    datefmt: '%Y-%m-%d %H:%M:%S'
+
+  verbose:
+    format: '%(asctime)s : %(name)s : %(levelname)s : %(module)s : %(funcName)s : %(message)s'
+
+handlers:
+  console_handler:
+    class: logging.StreamHandler
+    level: DEBUG
+    formatter: verbose
+    stream: ext://sys.stdout
+
+  error_handler:
+    class: logging.handlers.WatchedFileHandler
+    level: ERROR
+    formatter: precise
+    filename: error.log
+
+  process_handler:
+    class: logging.handlers.WatchedFileHandler
+    level: INFO
+    formatter: precise
+    filename: process.log
+
+  download_handler:
+    class: logging.handlers.WatchedFileHandler
+    level: INFO
+    formatter: brief
+    filename: download.log
+
+
+loggers:
+  root:
+    level: INFO
+    handlers: [console_handler]
+
+  process:
+    level: DEBUG
+    handlers: [console_handler, process_handler]
+    propagate: false
+
+  error:
+    level: INFO
+    handlers: [console_handler, process_handler, error_handler]
+    propagate: false
+
+  download:
+    level: INFO
+    handlers: [console_handler, process_handler, download_handler]
+    propagate: false

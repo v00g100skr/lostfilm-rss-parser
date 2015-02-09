@@ -5,21 +5,37 @@ import urllib2
 import transmissionrpc
 import base64
 import os
-import logging
+import logging.config
 import settings
+import yaml
+
+from transmissionrpc import TransmissionError
 
 def main():
 
-    tc = transmissionrpc.Client(
-        address=settings.TRANSMISSION_HOST,
-        port=settings.TRANSMISSION_PORT,
-        user=settings.TRANSMISSION_USER,
-        password=settings.TRANSMISSION_PASS)
-
     feed = feedparser.parse('http://www.lostfilm.tv/rssdd.xml')
-    logging.basicConfig(format='%(asctime)s %(message)s',filename='example.log',level=logging.INFO, datefmt='%m-%d-%Y %H:%M:%S')
+
+    logging.config.dictConfig(yaml.load(open('logging.yaml', 'r')))
+
+    log_process = logging.getLogger('process')
+    log_error = logging.getLogger('error')
+    log_download = logging.getLogger('download')
+
+    try:
+        tc = transmissionrpc.Client(
+            address=settings.TRANSMISSION_HOST,
+            port=settings.TRANSMISSION_PORT,
+            user=settings.TRANSMISSION_USER,
+            password=settings.TRANSMISSION_PASS)
+    except TransmissionError as e:
+        log_error.error('{} : {}'.format('TransmissionError',e.message))
+        tc = False
 
     for entry in feed.entries:
+
+        torrent_filename = entry.link.split("&")[1]
+        log_process.info('processing entry "{}"'.format(torrent_filename))
+
         for serie_info in settings.SERIES:
 
             title = serie_info['title']
@@ -27,9 +43,9 @@ def main():
             quality = serie_info.get('quality','')
             download_path = serie_info.get('download_path', title)
             download_dir = settings.TORRENTS_PATH + download_path
-            torrent_filename = entry.link.split("&")[1]
 
             if all([regexp in entry.title, quality in entry.link]):
+                log_process.info('{} matched'.format(torrent_filename))
                 request = urllib2.Request(
                     entry.link,
                     headers={
@@ -44,8 +60,12 @@ def main():
                     #output.close()
                     if not os.path.exists(download_dir):
                         os.makedirs(download_dir)
-                    tc.add_torrent(base64.b64encode(buffer), download_dir=download_dir)
-                    logging.info(torrent_filename)
+                        log_process.info('creating dir "{}"'.format(download_dir))
+                    if tc:
+                        tc.add_torrent(base64.b64encode(buffer), download_dir=download_dir)
+                        log_download.info('{} added to transmission'.format(torrent_filename))
+                else:
+                    log_process.warning('{} has zero size'.format(torrent_filename))
 
 if __name__ == "__main__":
     main()
