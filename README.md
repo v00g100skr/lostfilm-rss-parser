@@ -8,4 +8,5 @@
    - if you want - change user agent
 2. edit <b>run.sh</b> - change path to parser dir
 3. make <b>parser.py</b> and <b>run.sh</b> executable (chmod +x)
-4. add <b>run.sh</b> to your crontab
+4. make lostfilm-rss-parser dir writable for crontab user - it's needed for storing log files
+5. add <b>run.sh</b> to your crontab
