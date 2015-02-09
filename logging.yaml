@@ -32,10 +32,11 @@ handlers:
     filename: process.log
 
   download_handler:
-    class: logging.handlers.WatchedFileHandler
+    class: logging.handlers.RotatingFileHandler
     level: INFO
     formatter: brief
     filename: download.log
+    maxBytes: 16384
 
 
 loggers:

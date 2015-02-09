@@ -63,7 +63,8 @@ def main():
                         log_process.info('creating dir "{}"'.format(download_dir))
                     if tc:
                         tc.add_torrent(base64.b64encode(buffer), download_dir=download_dir)
-                        log_download.info('{} added to transmission'.format(torrent_filename))
+                        log_download.info(torrent_filename)
+                        log_process.info('{} added to transmission'.format(torrent_filename))
                 else:
                     log_process.warning('{} has zero size'.format(torrent_filename))
 
