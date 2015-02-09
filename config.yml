@@ -1,0 +1,24 @@
+transmission:
+  address: localhost
+  port: 9091
+  user: admin
+  password: admin
+
+lostfilm:
+  feed: http://www.lostfilm.tv/rssdd.xml
+  cookie: " uid=****; pass=****; usess=****"
+
+user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:34.0) Gecko/20100101 Firefox/34.0
+
+torrents-path: /path/to/torrent/dir/
+
+series:
+  720p:
+    - Bitten:
+       path: Serials
+  1080p:
+    - Cougar Town:
+        alternate_name: 'Город хищниц'
+  MP4:
+    - Grimm
+    - Stargate Atlantis
