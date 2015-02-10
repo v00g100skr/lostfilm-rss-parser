@@ -10,6 +10,7 @@ import yaml
 import smtplib
 
 from transmissionrpc import TransmissionError
+from email.mime.text import MIMEText
 
 def main():
 
@@ -117,26 +118,26 @@ def main():
             log_error.error('email sending failed')
 
 
-def send_email(config,torrents_list, **kwargs):
+def send_email(config,torrents_list):
 
     mail_user = config['email']['smtp_username']
     mail_pwd = config['email']['smtp_password']
-    FROM = config['email']['from']
-    TO = [config['email']['to']] #must be a list
-    SUBJECT = config['email']['subject']
-    TEXT = '\n - '.join(torrents_list)
+    text = '\n'.join(torrents_list)
 
-    message = """From: %s\nTo: %s\nSubject: %s\n\nNew torrents sended to transmission:\n - %s
-    """ % (FROM, ", ".join(TO), SUBJECT, TEXT)
+    msg = MIMEText(text, "", "utf-8")
+    msg['Subject'] = config['email']['subject']
+    msg['From'] = config['email']['from']
+    msg['To'] = config['email']['to']
+
     try:
-        server = smtplib.SMTP(config['email']['smtp_host'], config['email']['smtp_port']) #or port 465 doesn't seem to work!
+        server = smtplib.SMTP(config['email']['smtp_host'], config['email']['smtp_port'])
         server.ehlo()
         server.starttls()
         server.login(mail_user, mail_pwd)
-        server.sendmail(FROM, TO, message)
+        server.sendmail(config['email']['from'], config['email']['to'], msg.as_string())
         server.close()
         return True
-    except:
+    except Exception:
         return False
 
 if __name__ == "__main__":
