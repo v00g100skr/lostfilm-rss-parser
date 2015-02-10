@@ -7,6 +7,7 @@ import base64
 import os
 import logging.config
 import yaml
+import smtplib
 
 from transmissionrpc import TransmissionError
 
@@ -102,6 +103,31 @@ def main():
                 log_error.error('no connection  to transmission - skipping')
         else:
             log_process.warning('{} has zero size'.format(torrent_filename))
+
+    #send_email(config,['test text','test text 2'])
+
+
+def send_email(config,torrents_list):
+
+    mail_user = config['email']['smtp_username']
+    mail_pwd = config['email']['smtp_password']
+    FROM = config['email']['from']
+    TO = [config['email']['to']] #must be a list
+    SUBJECT = config['email']['subject']
+    TEXT = '\n - '.join(torrents_list)
+
+    message = """From: %s\nTo: %s\nSubject: %s\n\nNew torrents sended to transmission:\n - %s
+    """ % (FROM, ", ".join(TO), SUBJECT, TEXT)
+    try:
+        server = smtplib.SMTP(config['email']['smtp_host'], config['email']['smtp_port']) #or port 465 doesn't seem to work!
+        server.ehlo()
+        server.starttls()
+        server.login(mail_user, mail_pwd)
+        server.sendmail(FROM, TO, message)
+        server.close()
+        print 'New'
+    except:
+        print "failed to send mail"
 
 if __name__ == "__main__":
     main()

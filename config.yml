@@ -4,6 +4,16 @@ transmission:
   user: admin
   password: admin
 
+email:
+  from: *****
+  to: *****
+  subject: New torrents from Lostfilm
+  smtp_host: smtp.gmail.com
+  smtp_port: 587
+  smtp_username: ****
+  smtp_password: ****
+  smtp_tls: yes
+
 lostfilm:
   feed: http://www.lostfilm.tv/rssdd.xml
   cookie: " uid=****; pass=****; usess=****"
