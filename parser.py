@@ -13,7 +13,10 @@ from transmissionrpc import TransmissionError
 
 def main():
 
-    config = yaml.load(open('config.yml', 'r'))
+    try:
+        config = yaml.load(open('local.yml', 'r'))
+    except:
+        config = yaml.load(open('config.yml', 'r'))
 
     path = {}
     regexp = {}
@@ -40,6 +43,7 @@ def main():
     log_download = logging.getLogger('download')
 
     downloaded_torrents = []
+    email_torrents = []
 
     file=open("download.log",'r')
     row = file.readlines()
@@ -99,15 +103,21 @@ def main():
                 tc.add_torrent(base64.b64encode(buffer), download_dir=download_dir)
                 log_download.info(torrent_filename)
                 log_process.info('{} added to transmission'.format(torrent_filename))
+                email_torrents.append(entry.title)
             else:
                 log_error.error('no connection  to transmission - skipping')
         else:
             log_process.warning('{} has zero size'.format(torrent_filename))
 
-    #send_email(config,['test text','test text 2'])
+    if len(email_torrents) > 0 and config['send_email'] == True:
+        status = send_email(config,email_torrents)
+        if status:
+            log_process.info('email sended to {}'.format(config['email']['to']))
+        else:
+            log_error.error('email sending failed')
 
 
-def send_email(config,torrents_list):
+def send_email(config,torrents_list, **kwargs):
 
     mail_user = config['email']['smtp_username']
     mail_pwd = config['email']['smtp_password']
@@ -125,9 +135,9 @@ def send_email(config,torrents_list):
         server.login(mail_user, mail_pwd)
         server.sendmail(FROM, TO, message)
         server.close()
-        print 'New'
+        return True
     except:
-        print "failed to send mail"
+        return False
 
 if __name__ == "__main__":
     main()

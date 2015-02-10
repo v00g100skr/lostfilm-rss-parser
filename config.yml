@@ -14,6 +14,8 @@ email:
   smtp_password: ****
   smtp_tls: yes
 
+send_email: False
+
 lostfilm:
   feed: http://www.lostfilm.tv/rssdd.xml
   cookie: " uid=****; pass=****; usess=****"
