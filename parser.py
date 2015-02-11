@@ -53,16 +53,19 @@ def main():
         downloaded_torrents.append(items[1].replace("\n",''))
     file.close()
 
-    try:
-        tc = transmissionrpc.Client(
-            address=config['transmission']['address'],
-            port=config['transmission']['port'],
-            user=config['transmission']['user'],
-            password=config['transmission']['password'])
-        log_process.info('connected to transmission ({}:{})'.format(config['transmission']['address'], config['transmission']['port']))
-    except TransmissionError as e:
-        log_error.error('{} : {}'.format('TransmissionError',e.message))
-        tc = False
+    tc = False
+
+    if config['use_transmission'] is True:
+        try:
+            tc = transmissionrpc.Client(
+                address=config['transmission']['address'],
+                port=config['transmission']['port'],
+                user=config['transmission']['user'],
+                password=config['transmission']['password'])
+            log_process.info('connected to transmission ({}:{})'.format(config['transmission']['address'], config['transmission']['port']))
+        except TransmissionError as e:
+            log_error.error('{} : {}'.format('TransmissionError',e.message))
+
 
     for entry in feed.entries:
 
@@ -79,10 +82,11 @@ def main():
         if not matched:
             continue
 
-        download_dir = config['torrents-path'] + path[serie_id]
+        download_dir = config['downloads-path'] + path[serie_id]
+        torrent_dir = config['torrents-path']
 
         if torrent_filename in downloaded_torrents:
-            log_process.info('{} already in transmission - skipping'.format(torrent_filename))
+            log_process.info('{} already processed - skipping'.format(torrent_filename))
             continue
         log_process.info('{} matched'.format(torrent_filename))
         request = urllib2.Request(
@@ -94,23 +98,31 @@ def main():
         torrent = urllib2.urlopen(request)
         buffer = torrent.read()
         if len(buffer) > 0:
-            #output = open(torrent_filename, 'wb')
-            #output.write(buffer)
-            #output.close()
-            if not os.path.exists(download_dir):
-                os.makedirs(download_dir)
-                log_process.info('creating dir "{}"'.format(download_dir))
+            processed = False
+            if config['store_torrent_files'] is True and not os.path.isfile(torrent_dir + torrent_filename):
+                output = open(torrent_dir + torrent_filename, 'wb')
+                output.write(buffer)
+                output.close()
+                log_process.info('{} stored to "{}"'.format(torrent_filename,torrent_dir))
+                processed = True
             if tc:
+                if not os.path.exists(download_dir):
+                    os.makedirs(download_dir)
+                    log_process.info('creating dir "{}"'.format(download_dir))
                 tc.add_torrent(base64.b64encode(buffer), download_dir=download_dir)
-                log_download.info(torrent_filename)
                 log_process.info('{} added to transmission'.format(torrent_filename))
                 email_torrents.append(entry.title)
+                processed = True
             else:
                 log_error.error('no connection  to transmission - skipping')
+
+            if processed:
+                log_download.info(torrent_filename)
+
         else:
             log_process.warning('{} has zero size'.format(torrent_filename))
 
-    if len(email_torrents) > 0 and config['send_email'] == True:
+    if len(email_torrents) > 0 and config['send_email'] is True:
         status = send_email(config,email_torrents)
         if status:
             log_process.info('email sended to {}'.format(config['email']['to']))

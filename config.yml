@@ -1,3 +1,7 @@
+send_email: False
+use_transmission: False
+store_torrent_files: False
+
 transmission:
   address: localhost
   port: 9091
@@ -14,15 +18,14 @@ email:
   smtp_password: ****
   smtp_tls: yes
 
-send_email: False
-
 lostfilm:
   feed: http://www.lostfilm.tv/rssdd.xml
   cookie: " uid=****; pass=****; usess=****"
 
 user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:34.0) Gecko/20100101 Firefox/34.0
 
-torrents-path: /path/to/torrent/dir/
+downloads-path: /path/to/downloads/dir/
+torrents-path: /path/to/torrents/dir/
 
 series:
   720p:
