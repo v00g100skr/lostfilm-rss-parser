@@ -12,6 +12,7 @@ import smtplib
 from transmissionrpc import TransmissionError
 from email.mime.text import MIMEText
 
+
 def main():
 
     try:
@@ -25,10 +26,12 @@ def main():
 
     for quality_id, series in config['series'].iteritems():
         for serie in series:
-            if type(serie) is dict:
-                for serie_name,serie_data in serie.iteritems():
-                    path[serie_name] = serie_data.get('path',serie_name)
-                    regexp[serie_name] = serie_data.get('alternate_name',serie_name)
+            if isinstance(serie, dict):
+                for serie_name, serie_data in serie.iteritems():
+                    path[serie_name] = serie_data.get('path', serie_name)
+                    regexp[serie_name] = serie_data.get(
+                        'alternate_name',
+                        serie_name)
                     quality[serie_name] = quality_id
             else:
                 path[serie] = serie
@@ -46,11 +49,11 @@ def main():
     downloaded_torrents = []
     email_torrents = []
 
-    file=open("download.log",'r')
+    file = open("download.log", 'r')
     row = file.readlines()
     for line in row:
         items = line.split(" ")
-        downloaded_torrents.append(items[1].replace("\n",''))
+        downloaded_torrents.append(items[1].replace("\n", ''))
     file.close()
 
     tc = False
@@ -62,10 +65,12 @@ def main():
                 port=config['transmission']['port'],
                 user=config['transmission']['user'],
                 password=config['transmission']['password'])
-            log_process.info('connected to transmission ({}:{})'.format(config['transmission']['address'], config['transmission']['port']))
+            log_process.info(
+                'connected to transmission ({}:{})'.format(
+                    config['transmission']['address'],
+                    config['transmission']['port']))
         except TransmissionError as e:
-            log_error.error('{} : {}'.format('TransmissionError',e.message))
-
+            log_error.error('{} : {}'.format('TransmissionError', e.message))
 
     for entry in feed.entries:
 
@@ -86,7 +91,8 @@ def main():
         torrent_dir = config['torrents-path']
 
         if torrent_filename in downloaded_torrents:
-            log_process.info('{} already processed - skipping'.format(torrent_filename))
+            log_process.info(
+                '{} already processed - skipping'.format(torrent_filename))
             continue
         log_process.info('{} matched'.format(torrent_filename))
         request = urllib2.Request(
@@ -99,18 +105,25 @@ def main():
         buffer = torrent.read()
         if len(buffer) > 0:
             processed = False
-            if config['store_torrent_files'] is True and not os.path.isfile(torrent_dir + torrent_filename):
+            if config['store_torrent_files'] is True and not os.path.isfile(
+                    torrent_dir + torrent_filename):
                 output = open(torrent_dir + torrent_filename, 'wb')
                 output.write(buffer)
                 output.close()
-                log_process.info('{} stored to "{}"'.format(torrent_filename,torrent_dir))
+                log_process.info(
+                    '{} stored to "{}"'.format(
+                        torrent_filename,
+                        torrent_dir))
                 processed = True
             if tc:
                 if not os.path.exists(download_dir):
                     os.makedirs(download_dir)
                     log_process.info('creating dir "{}"'.format(download_dir))
-                tc.add_torrent(base64.b64encode(buffer), download_dir=download_dir)
-                log_process.info('{} added to transmission'.format(torrent_filename))
+                tc.add_torrent(
+                    base64.b64encode(buffer),
+                    download_dir=download_dir)
+                log_process.info(
+                    '{} added to transmission'.format(torrent_filename))
                 email_torrents.append(entry.title)
                 processed = True
             else:
@@ -123,14 +136,16 @@ def main():
             log_process.warning('{} has zero size'.format(torrent_filename))
 
     if len(email_torrents) > 0 and config['send_email'] is True:
-        status = send_email(config,email_torrents)
+        status = send_email(config, email_torrents)
         if status:
-            log_process.info('email sended to {}'.format(config['email']['to']))
+            log_process.info(
+                'email sended to {}'.format(
+                    config['email']['to']))
         else:
             log_error.error('email sending failed')
 
 
-def send_email(config,torrents_list):
+def send_email(config, torrents_list):
 
     mail_user = config['email']['smtp_username']
     mail_pwd = config['email']['smtp_password']
@@ -142,11 +157,16 @@ def send_email(config,torrents_list):
     msg['To'] = config['email']['to']
 
     try:
-        server = smtplib.SMTP(config['email']['smtp_host'], config['email']['smtp_port'])
+        server = smtplib.SMTP(
+            config['email']['smtp_host'],
+            config['email']['smtp_port'])
         server.ehlo()
         server.starttls()
         server.login(mail_user, mail_pwd)
-        server.sendmail(config['email']['from'], config['email']['to'], msg.as_string())
+        server.sendmail(
+            config['email']['from'],
+            config['email']['to'],
+            msg.as_string())
         server.close()
         return True
     except Exception:
