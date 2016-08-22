@@ -9,13 +9,13 @@ transmission:
   password: admin
 
 email:
-  from: *****
-  to: *****
+  from: my.email@google.com
+  to: my.email@google.com
   subject: New torrents from Lostfilm
   smtp_host: smtp.gmail.com
   smtp_port: 587
-  smtp_username: ****
-  smtp_password: ****
+  smtp_username: user
+  smtp_password: password
   smtp_tls: yes
 
 lostfilm:
