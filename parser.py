@@ -136,7 +136,7 @@ def send_email(config,torrents_list):
     mail_pwd = config['email']['smtp_password']
     text = '\n'.join(torrents_list)
 
-    msg = MIMEText(text, "", "utf-8")
+    msg = MIMEText(text, "plain")
     msg['Subject'] = config['email']['subject']
     msg['From'] = config['email']['from']
     msg['To'] = config['email']['to']
