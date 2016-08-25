@@ -1,3 +1,4 @@
+# coding: utf=8
 __author__ = 'crow'
 
 import feedparser
@@ -151,7 +152,7 @@ def send_email(config, torrents_list):
     mail_pwd = config['email']['smtp_password']
     text = '\n'.join(torrents_list)
 
-    msg = MIMEText(text, "plain")
+    msg = MIMEText(text, "plain", "utf-8")
     msg['Subject'] = config['email']['subject']
     msg['From'] = config['email']['from']
     msg['To'] = config['email']['to']
