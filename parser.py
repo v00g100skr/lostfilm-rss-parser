@@ -96,6 +96,12 @@ def main():
                 '{} already processed - skipping'.format(torrent_filename))
             continue
         log_process.info('{} matched'.format(torrent_filename))
+        
+        ## hack for old site redirect
+        ## will be removed in new version of parcer
+        entry.link.replace("www.lostfilm.tv/download.php", "old.lostfilm.tv/download.php")
+        ##------------------------
+        
         request = urllib2.Request(
             entry.link,
             headers={
