@@ -19,7 +19,7 @@ email:
   smtp_tls: yes
 
 lostfilm:
-  feed: http://www.lostfilm.tv/rssdd.xml
+  feed: http://old.lostfilm.tv/rssdd.xml
   cookie: " uid=****; pass=****; usess=****"
 
 user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:34.0) Gecko/20100101 Firefox/34.0
