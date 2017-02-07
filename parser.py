@@ -99,7 +99,7 @@ def main():
         
         ## hack for old site redirect
         ## will be removed in new version of parcer
-        entry.link.replace("www.lostfilm.tv/download.php", "old.lostfilm.tv/download.php")
+        entry.link=entry.link.replace("www.lostfilm.tv/download.php", "old.lostfilm.tv/download.php")
         ##------------------------
         
         request = urllib2.Request(
